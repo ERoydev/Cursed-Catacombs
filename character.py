@@ -7,17 +7,17 @@ import math
 
 
 class Character:
-    def __init__(self, x, y, animation_list):
+    def __init__(self, x, y, mob_animations, char_type):
+        self.char_type = char_type
         self.action = 0  # 0: idle, 1: running
         self.flip = False
-        self.animation_list = animation_list
+        self.animation_list = mob_animations[char_type]
         self.frame_index = 0   # for animations
         self.update_time = pygame.time.get_ticks()    # for animations
         self.running = False
         self.rect = pygame.Rect(0, 0, 40, 40)
         self.rect.center = (x, y)
-        self.image = animation_list[self.action][self.frame_index]
-
+        self.image = self.animation_list[self.action][self.frame_index]
 
     def move(self, dx, dy):
         self.running = False
@@ -70,7 +70,10 @@ class Character:
 
     def draw(self, surface):
         flipped_image = pygame.transform.flip(self.image, self.flip, False)
-        surface.blit(flipped_image, self.rect)
+        if self.char_type == 0:
+            surface.blit(flipped_image, (self.rect.x, self.rect.y - constants.SCALE * constants.OFFSET))
+        else:
+            surface.blit(flipped_image, self.rect)
         pygame.draw.rect(surface, constants.RED, self.rect, 1)
 
 

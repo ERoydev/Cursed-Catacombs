@@ -1,6 +1,7 @@
 import pygame
 from constants import *
 from character import Character
+from weapon import Weapon
 
 pygame.init()
 
@@ -25,22 +26,38 @@ def scale_img(image, scale):
 
     return pygame.transform.scale(image, (w * scale, h * scale))
 
-# load sprites
+# Load Weapon Images
+bow_image = scale_img(pygame.image.load("assets/assets/images/weapons/bow.png").convert_alpha(), WEAPON_SCALE)
+arrow_image = scale_img(pygame.image.load("assets/assets/images/weapons/arrow.png").convert_alpha(), WEAPON_SCALE)
+
+# Load Character Images
+mob_animations = []
+mob_types = ["elf", "imp", "skeleton", "goblin", "muddy", "tiny_zombie", "big_demon"]
 animation_types = ["idle", "run"]
-animation_list = []
-for animation in animation_types:
-    # reset temporary list of images
-    temp_list = []
-    for i in range(4):
-        img = pygame.image.load(f"assets/assets/images/characters/elf/{animation}/{i}.png").convert_alpha()
-        img = scale_img(img, SCALE)
-        temp_list.append(img)
-    animation_list.append(temp_list)
+
+for mob in mob_types:
+    animation_list = []
+    for animation in animation_types:
+        # reset temporary list of images
+        temp_list = []
+        for i in range(4):
+            img = pygame.image.load(f"assets/assets/images/characters/{mob}/{animation}/{i}.png").convert_alpha()
+            img = scale_img(img, SCALE)
+            temp_list.append(img)
+        animation_list.append(temp_list)
+
+    mob_animations.append(animation_list)
 
 # Create Player
-player = Character(100, 100, animation_list)
+player = Character(100, 100, mob_animations, 0)
 
-# main game Loop
+# Create Player Weapon
+bow = Weapon(bow_image, arrow_image)
+
+# Create sprite groups
+arrow_group = pygame.sprite.Group()
+
+# Main Game Loop
 run = True
 while run:
     # Frame rate control
@@ -65,9 +82,15 @@ while run:
 
     # Update player
     player.update()
+    arrow = bow.update(player)
+    if arrow:
+        arrow_group.add(arrow)
 
     # Draw player on screen
     player.draw(win)
+    bow.draw(win)
+    for arrow in arrow_group:
+        arrow.draw(win)
 
     # Event Loop
     for event in pygame.event.get():
